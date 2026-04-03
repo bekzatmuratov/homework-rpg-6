@@ -39,6 +39,7 @@ public class TournamentEngine {
             round++;
 
             ActionQueue actionQueue = new ActionQueue();
+            DefendCommand defendCommand = new DefendCommand(hero, 0.10);
 
             actionQueue.enqueue(new AttackCommand(opponent, hero.getAttackPower()));
 
@@ -46,7 +47,7 @@ public class TournamentEngine {
                 actionQueue.enqueue(new HealCommand(hero, 20));
             }
 
-            actionQueue.enqueue(new DefendCommand(hero, 0.10));
+            actionQueue.enqueue(defendCommand);
 
             List<String> descriptions = actionQueue.getCommandDescriptions();
             String queueLine = "[Round " + round + "] Queue: " + descriptions;
@@ -67,6 +68,9 @@ public class TournamentEngine {
                 System.out.println("[Round " + round + "] " + opponent.getName()
                         + " attacks for " + opponent.getAttackPower() + ".");
                 dodge.handle(opponent.getAttackPower(), hero);
+
+                // Defend boost works for this incoming attack only
+                defendCommand.undo();
             }
 
             String statusLine = "[Round " + round + "] Opponent HP: " + opponent.getHealth()
