@@ -35,14 +35,6 @@ public class TournamentEngine {
         int round = 0;
         final int maxRounds = 20;
 
-        long dodgeSeed = random.nextLong();
-
-        DefenseHandler dodge = new DodgeHandler(hero.getDodgeChance(), dodgeSeed);
-        DefenseHandler block = new BlockHandler(hero.getBlockRating() / 100.0);
-        DefenseHandler armor = new ArmorHandler(hero.getArmorValue());
-        DefenseHandler hp = new HpHandler();
-        dodge.setNext(block).setNext(armor).setNext(hp);
-
         while (hero.isAlive() && opponent.isAlive() && round < maxRounds) {
             round++;
 
@@ -64,7 +56,16 @@ public class TournamentEngine {
             actionQueue.executeAll();
 
             if (opponent.isAlive()) {
-                System.out.println("[Round " + round + "] " + opponent.getName() + " attacks for " + opponent.getAttackPower() + ".");
+                long dodgeSeed = random.nextLong();
+
+                DefenseHandler dodge = new DodgeHandler(hero.getDodgeChance(), dodgeSeed);
+                DefenseHandler block = new BlockHandler(hero.getBlockRating() / 100.0);
+                DefenseHandler armor = new ArmorHandler(hero.getArmorValue());
+                DefenseHandler hp = new HpHandler();
+                dodge.setNext(block).setNext(armor).setNext(hp);
+
+                System.out.println("[Round " + round + "] " + opponent.getName()
+                        + " attacks for " + opponent.getAttackPower() + ".");
                 dodge.handle(opponent.getAttackPower(), hero);
             }
 
@@ -78,8 +79,12 @@ public class TournamentEngine {
             result.setWinner(hero.getName());
         } else if (!hero.isAlive() && opponent.isAlive()) {
             result.setWinner(opponent.getName());
-        } else if (hero.isAlive()) {
-            result.setWinner(hero.getName() + " (won by max round survival)");
+        } else if (hero.isAlive() && opponent.isAlive()) {
+            if (hero.getHealth() >= opponent.getHealth()) {
+                result.setWinner(hero.getName() + " (won on max rounds)");
+            } else {
+                result.setWinner(opponent.getName() + " (won on max rounds)");
+            }
         } else {
             result.setWinner("Draw");
         }
